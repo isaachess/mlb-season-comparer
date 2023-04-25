@@ -52,7 +52,16 @@ func (gc *gameCombos) Add(key string, val seasonDetails) {
 var compareCmd = &cobra.Command{
 	Use:   "compare",
 	Short: "Run the comparison",
-	Long:  `Using the input CSV file provided, compare will run season W/L streak comparisons for your dataset. It will print out matches at the end.`,
+	Long: `Using the input CSV file provided, compare will run season W/L streak comparisons for your dataset. It will print out matches at the end.
+
+Inputs:
+
+in-file: The path the CSV containing the data
+min-game-window: The lower bound of game-streak to look for.
+max-game-window: The upper bound of game-streak to look for.
+
+For example, if you the min is 30 and the max is 35, the script will find all instances where two seasons matched exactly for 30, 31, 32, 33, 34, and 35 games.
+`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		inFilePath, err := cmd.Flags().GetString("in-file")
 		if err != nil {
