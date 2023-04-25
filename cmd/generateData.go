@@ -56,18 +56,51 @@ to quickly create a Cobra application.`,
 
 		diffGames := numMaxGames - numMinGames
 
-		for season := 1; season <= numSeasons; season++ {
-			for team := 1; team <= numTeams; team++ {
+		teams := []string{
+			"ARI",
+			"ATL",
+			"BAL",
+			"BOS",
+			"CHC",
+			"CHW",
+			"CIN",
+			"CLE",
+			"COL",
+			"DET",
+			"FLA",
+			"HOU",
+			"KAN",
+			"LAA",
+			"LAD",
+			"MIL",
+			"MIN",
+			"NYM",
+			"NYY",
+			"OAK",
+			"PHI",
+			"PIT",
+			"SD",
+			"SF",
+			"SEA",
+			"STL",
+			"TB",
+			"TEX",
+			"TOR",
+			"WAS",
+		}
+
+		for season := 2022 - numSeasons; season <= 2022; season++ {
+			for _, team := range teams {
 				modifier := rand.Intn(diffGames + 1)
 				games := numMinGames + modifier
 				data := make([]string, 2, games+2)
 				data[0] = strconv.Itoa(season)
-				data[1] = strconv.Itoa(team)
+				data[1] = team
 				for game := 1; game <= numMaxGames; game++ {
 					data = append(data, getGameResult(game, games))
 				}
 				if err := csvWriter.Write(data); err != nil {
-					return fmt.Errorf("failed to write data for season %d and team %d", season, team)
+					return fmt.Errorf("failed to write data for season %d and team %s", season, team)
 				}
 			}
 		}

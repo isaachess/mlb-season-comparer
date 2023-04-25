@@ -15,8 +15,8 @@ import (
 )
 
 type seasonDetails struct {
-	team      string
 	season    string
+	team      string
 	length    int
 	gameStart int
 	gameEnd   int
@@ -93,7 +93,7 @@ to quickly create a Cobra application.`,
 
 		for match := range combos.matches {
 			details := combos.combos[match]
-			fmt.Println("Match Found")
+			fmt.Println("Match Found: ", match)
 			for _, detail := range details {
 				fmt.Printf("%+v\n", detail)
 			}
