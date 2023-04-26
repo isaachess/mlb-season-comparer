@@ -73,7 +73,7 @@ func TestFindMatches(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			combos := newGameCombos()
-			err := findMatches(test.records, combos, test.minGameWindow, test.maxGameWindow)
+			err := findMatches(test.records, combos, test.minGameWindow, test.maxGameWindow, 0)
 			require.NoError(t, err)
 			if test.checkCombos {
 				assert.Equal(t, test.expectedCombos, combos.combos)

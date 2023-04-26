@@ -76,6 +76,10 @@ For example, if you the min is 30 and the max is 35, the script will find all in
 		if err != nil {
 			return err
 		}
+		winningConstraint, err := cmd.Flags().GetInt("winning-constraint")
+		if err != nil {
+			return err
+		}
 
 		f, err := os.Open(inFilePath)
 		if err != nil {
@@ -91,7 +95,7 @@ For example, if you the min is 30 and the max is 35, the script will find all in
 
 		combos := newGameCombos()
 
-		if err := findMatches(records, combos, minGameWindow, maxGameWindow); err != nil {
+		if err := findMatches(records, combos, minGameWindow, maxGameWindow, winningConstraint); err != nil {
 			return err
 		}
 
@@ -107,7 +111,7 @@ For example, if you the min is 30 and the max is 35, the script will find all in
 	},
 }
 
-func findMatches(records [][]string, combos *gameCombos, minGameWindow, maxGameWindow int) error {
+func findMatches(records [][]string, combos *gameCombos, minGameWindow, maxGameWindow, winningConstraint int) error {
 	var eg errgroup.Group
 
 	for i, record := range records {
@@ -117,16 +121,16 @@ func findMatches(records [][]string, combos *gameCombos, minGameWindow, maxGameW
 		}
 		r := record
 
-		// eg.Go(func() error {
-		calculateHashes(r, combos, minGameWindow, maxGameWindow)
-		// return nil
-		// })
+		eg.Go(func() error {
+			calculateHashes(r, combos, minGameWindow, maxGameWindow, winningConstraint)
+			return nil
+		})
 	}
 
 	return eg.Wait()
 }
 
-func calculateHashes(record []string, combos *gameCombos, minGameWindow, maxGameWindow int) {
+func calculateHashes(record []string, combos *gameCombos, minGameWindow, maxGameWindow, winningConstraint int) {
 	season := record[0]
 	team := record[1]
 	gameOffset := 2
@@ -142,6 +146,20 @@ func calculateHashes(record []string, combos *gameCombos, minGameWindow, maxGame
 			if results[len(results)-1] == "" {
 				continue A
 			}
+			var winsInResults int
+			for _, result := range results {
+				if result == "W" {
+					winsInResults++
+				}
+			}
+
+			if winningConstraint > 0 {
+				pctWins := winsInResults * 100 / len(results)
+				if pctWins < winningConstraint {
+					continue A
+				}
+			}
+
 			combined := strings.Join(results, "")
 			combos.Add(combined, seasonDetails{
 				team:      team,
@@ -160,6 +178,7 @@ func init() {
 	compareCmd.Flags().String("in-file", "", "path to input CSV")
 	compareCmd.Flags().Int("min-game-window", 0, "lower bound of game window to compare")
 	compareCmd.Flags().Int("max-game-window", 0, "upper bound of game window to compare")
+	compareCmd.Flags().Int("winning-constraint", 0, "streak must have at least this pct of wins")
 	compareCmd.MarkFlagRequired("in-file")
 	compareCmd.MarkFlagRequired("min-game-window")
 	compareCmd.MarkFlagRequired("max-game-window")
