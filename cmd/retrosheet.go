@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/csv"
+	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
@@ -206,6 +207,33 @@ type Season struct {
 	Team      string
 	Year      int
 	Games     []TeamGame // sorted by game number
+}
+
+func (s Season) GetSeasonRecord() SeasonRecord {
+	var sr SeasonRecord
+	for _, game := range s.Games {
+		if game.Result == Win {
+			sr.Wins++
+		} else if game.Result == Tie {
+			sr.Ties++
+		} else if game.Result == Loss {
+			sr.Losses++
+		} else {
+			panic("unknown result")
+		}
+	}
+	return sr
+}
+
+type SeasonRecord struct {
+	Wins, Ties, Losses int
+}
+
+func (sr SeasonRecord) String() string {
+	if sr.Ties > 0 {
+		return fmt.Sprintf("%d-%d-%d", sr.Wins, sr.Ties, sr.Losses)
+	}
+	return fmt.Sprintf("%d-%d", sr.Wins, sr.Losses)
 }
 
 func retroGameToTeamGame(rg *RetrosheetGame, franchiseConverter FranchiseConverter, isHome bool) TeamGame {
